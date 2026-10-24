@@ -172,6 +172,13 @@ jobs:
         shell: pwsh
         run: npm install --prefix .ci-tools/typescript --no-audit --no-fund typescript@5.9.3
 
+      - name: Enable corepack (put pnpm on PATH)
+        shell: pwsh
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.7.0 --activate
+          pnpm --version
+
       - name: Install plugin workflow dependencies (pnpm)
         shell: pwsh
         run: |
