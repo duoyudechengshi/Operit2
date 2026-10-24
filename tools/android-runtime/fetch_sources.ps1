@@ -40,8 +40,12 @@ $items = @(
 
 foreach ($item in $items) {
     $archivePath = Join-Path $downloadsDir $item.Archive
-    Write-Host "Downloading $($item.Name)"
-    Invoke-WebRequest -Uri $item.Url -OutFile $archivePath
+    if (Test-Path $archivePath) {
+        Write-Host "Using cached $($item.Name)"
+    } else {
+        Write-Host "Downloading $($item.Name)"
+        Invoke-WebRequest -Uri $item.Url -OutFile $archivePath
+    }
 
     $actualSha256 = (Get-FileHash -Algorithm SHA256 -Path $archivePath).Hash.ToUpperInvariant()
     if ($actualSha256 -ne $item.Sha256) {
