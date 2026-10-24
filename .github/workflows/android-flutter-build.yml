@@ -168,6 +168,10 @@ jobs:
           python -m venv .venv
           .\.venv\Scripts\python.exe --version
 
+      - name: Prepare TypeScript toolchain for plugin sync
+        shell: pwsh
+        run: npm install --prefix .ci-tools/typescript --no-audit --no-fund typescript@5.9.3
+
       - name: Check build environment
         shell: pwsh
         run: python tools/build_scripts/check_build_environment.py --products app --github-runner
