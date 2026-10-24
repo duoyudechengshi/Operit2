@@ -82,6 +82,25 @@ jobs:
           toolchain: ${{ env.RUST_TOOLCHAIN_VERSION }}
           targets: x86_64-unknown-linux-musl,aarch64-unknown-linux-gnu
 
+      - name: Prepare Python venv for Flutter build hook
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python --version
+
+      - name: Prepare TypeScript toolchain for plugin sync
+        run: npm install --prefix .ci-tools/typescript --no-audit --no-fund typescript@5.9.3
+
+      - name: Enable corepack (put pnpm on PATH)
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.7.0 --activate
+          pnpm --version
+
+      - name: Install plugin workflow dependencies (pnpm)
+        run: |
+          cd plugins/packages/buildin/workflow
+          corepack pnpm install --frozen-lockfile
+
       - name: Check build environment
         run: python3 tools/build_scripts/check_build_environment.py --products "${{ inputs.products }}" --cli-arches "${{ inputs.cli_arches }}" --github-runner
 
