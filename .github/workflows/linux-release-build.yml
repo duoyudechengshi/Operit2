@@ -118,12 +118,7 @@ jobs:
           mkdir -p .ci-sources/mnn .ci-sources/llama
           curl -sSL -o /tmp/mnn.zip https://codeload.github.com/alibaba/MNN/zip/refs/tags/3.6.1
           curl -sSL -o /tmp/llama.zip https://codeload.github.com/ggml-org/llama.cpp/zip/refs/tags/b11829
-          python3 - <<'PY'
-          import zipfile
-          zipfile.ZipFile('/tmp/mnn.zip').extractall('.ci-sources/mnn')
-          zipfile.ZipFile('/tmp/llama.zip').extractall('.ci-sources/llama')
-          print('extracted')
-          PY
+          python3 -c "import zipfile; zipfile.ZipFile('/tmp/mnn.zip').extractall('.ci-sources/mnn'); zipfile.ZipFile('/tmp/llama.zip').extractall('.ci-sources/llama'); print('extracted')"
           ls -d .ci-sources/mnn/* .ci-sources/llama/*
 
       - name: Build and package Linux CLI
