@@ -189,6 +189,17 @@ jobs:
         shell: pwsh
         run: python tools/build_scripts/check_build_environment.py --products app --github-runner
 
+      - name: Stage libc++_shared for the Android bridge
+        shell: pwsh
+        run: |
+          $ndk = Get-ChildItem 'C:\Android\android-sdk\ndk' -Directory | Select-Object -First 1
+          $src = Join-Path $ndk.FullName 'toolchains\llvm\prebuilt\windows-x86_64\sysroot\usr\lib\aarch64-linux-android\libc++_shared.so'
+          if (-not (Test-Path $src)) { throw "libc++_shared.so not found: $src" }
+          $dst = 'apps\flutter\app\android\app\src\main\jniLibs\arm64-v8a'
+          New-Item -ItemType Directory -Force -Path $dst | Out-Null
+          Copy-Item $src $dst -Force
+          Get-ChildItem $dst | Select-Object Name, Length
+
       - name: Build and package Android app
         shell: pwsh
         run: |
