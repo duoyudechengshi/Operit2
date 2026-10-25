@@ -57,8 +57,8 @@ fn main() {
                     std::path::PathBuf::from(ndk).join("build/cmake/android.toolchain.cmake"),
                 )
                 .define("ANDROID_ABI", abi)
-                .define("ANDROID_PLATFORM", "android-23")
-                .define("ANDROID_STL", "c++_static");
+                .define("ANDROID_PLATFORM", "android-24")
+                .define("ANDROID_STL", "c++_shared");
         } else if target_env == "ohos" {
             let sdk = std::env::var_os("OHOS_NATIVE_HOME")
                 .expect("Set OHOS_NATIVE_HOME to the native OpenHarmony SDK directory");
@@ -123,7 +123,10 @@ fn main() {
         match os.as_str() {
             "macos" | "ios" => println!("cargo:rustc-link-lib=c++"),
             "android" => {
-                println!("cargo:rustc-link-lib=c++_static");
+                // libc++_static hides std::type_info symbols under NDK r26+, so the
+                // resulting .so loads with undefined _ZTISt* symbols. Link the shared
+                // STL instead and ship libc++_shared.so inside the APK.
+                println!("cargo:rustc-link-lib=c++_shared");
                 println!("cargo:rustc-link-lib=log");
             }
             // ggml's Windows CPU detection reads the registry. Propagate this
