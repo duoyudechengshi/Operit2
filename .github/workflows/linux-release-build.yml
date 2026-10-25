@@ -36,6 +36,8 @@ jobs:
       FVM_VERSION: 4.3.0
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
+      OPERIT_MNN_SOURCE: ${{ github.workspace }}/.ci-sources/mnn/MNN-3.6.1
+      OPERIT_LLAMA_SOURCE: ${{ github.workspace }}/.ci-sources/llama/llama.cpp-b11829
 
     steps:
       - name: Checkout
@@ -109,6 +111,20 @@ jobs:
       - name: Build and package Linux app
         if: inputs.products != 'cli'
         run: python3 tools/build_scripts/build_flutter_linux.py --enforce-lockfile
+
+      - name: Pre-extract MNN and llama.cpp sources (locale-independent)
+        run: |
+          set -e
+          mkdir -p .ci-sources/mnn .ci-sources/llama
+          curl -sSL -o /tmp/mnn.zip https://codeload.github.com/alibaba/MNN/zip/refs/tags/3.6.1
+          curl -sSL -o /tmp/llama.zip https://codeload.github.com/ggml-org/llama.cpp/zip/refs/tags/b11829
+          python3 - <<'PY'
+          import zipfile
+          zipfile.ZipFile('/tmp/mnn.zip').extractall('.ci-sources/mnn')
+          zipfile.ZipFile('/tmp/llama.zip').extractall('.ci-sources/llama')
+          print('extracted')
+          PY
+          ls -d .ci-sources/mnn/* .ci-sources/llama/*
 
       - name: Build and package Linux CLI
         if: inputs.products != 'app'
